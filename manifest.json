@@ -1,5 +1,5 @@
 {
-    "display_name": "Character Locks",
+    "display_name": "Character Locks (繁體中文)",
     "loading_order": 70,
     "requires": [],
     "optional": [],
@@ -9,5 +9,5 @@
     "license": "AGPL-3.0",
     "homePage": "https://github.com/aikohanasaki/SillyTavern-CharacterLocks",
     "auto_update": true,
-    "description": "Complete preset and profile management system for SillyTavern. Automatically remembers and applies connection profiles and presets for each character, chat, and group conversation. Version 4.0.0 switches from model/temperature locks to preset and connection profile locks."
+    "description": "SillyTavern 的完整預設和連線設定檔管理系統。自動為每個角色、聊天和群組對話記住並套用連線設定檔與預設。4.0.0 版本從模型/溫度鎖定轉換為預設與連線設定檔鎖定。"
 }

@@ -1179,7 +1179,7 @@ class SettingsManager {
                 extension_settings.connectionManager.profiles.find(p => p.id === selectedProfileId)?.name || '' : '';
 
             return {
-                connectionProfile: currentProfile,
+                connection連線設定: currentProfile,
                 preset: currentPreset,
                 savedAt: moment().toISOString()
             };
@@ -1187,7 +1187,7 @@ class SettingsManager {
             console.error('STCL: Error getting current UI settings:', error);
             // Return safe defaults
             return {
-                connectionProfile: '',
+                connection連線設定: '',
                 preset: '',
                 savedAt: moment().toISOString()
             };
@@ -1200,7 +1200,7 @@ class SettingsManager {
         const extensionSettings = this.storage.getExtensionSettings();
         if (extensionSettings.moduleSettings.showNotifications) {
             const typeText = savedTypes.join(' & ');
-            this._showToastr(`Saved ${typeText} settings`, 'success');
+            this._showToastr(`已儲存 ${typeText} 設定`, 'success');
         }
     }
 
@@ -1292,7 +1292,7 @@ class SettingsManager {
             const message = `Apply saved ${resolved.source} settings for ${contextType} "${sourceName}"?`;
 
             // Use SillyTavern's popup system
-            const result = await callGenericPopup(message, POPUP_TYPE.CONFIRM, '', { okButton: 'Apply', cancelButton: 'Skip' });
+            const result = await callGenericPopup(message, POPUP_TYPE.CONFIRM, '', { okButton: '套用', cancelButton: '略過' });
 
             return result === POPUP_RESULT.AFFIRMATIVE;
         } catch (error) {
@@ -1383,10 +1383,10 @@ function cleanupExtension() {
 
 function formatSettingsInfo(settings) {
     if (!settings || typeof settings !== 'object') {
-        return 'No saved settings';
+        return '沒有已儲存的設定';
     }
 
-    let saved = 'Unknown';
+    let saved = '未知';
     if (settings.savedAt) {
         try {
             if (typeof moment !== 'undefined' && moment.isDate && moment(settings.savedAt).isValid()) {
@@ -1400,7 +1400,7 @@ function formatSettingsInfo(settings) {
             }
         } catch (dateError) {
             if (DEBUG_MODE) console.warn('STCL: Error formatting date:', dateError);
-            saved = 'Unknown';
+            saved = '未知';
         }
     }
 
@@ -1408,9 +1408,9 @@ function formatSettingsInfo(settings) {
     const connectionProfile = (settings.connectionProfile && typeof settings.connectionProfile === 'string') ? settings.connectionProfile.trim() || 'N/A' : 'N/A';
     const preset = (settings.preset && typeof settings.preset === 'string') ? settings.preset.trim() || 'N/A' : 'N/A';
 
-    return `Profile: ${connectionProfile}
-Preset: ${preset}
-Saved: ${saved}`;
+    return `連線設定: ${connectionProfile}
+預設設定: ${preset}
+儲存於: ${saved}`;
 }
 
 // ===== TEMPLATE AND UI =====
@@ -1418,7 +1418,7 @@ Saved: ${saved}`;
 const popupTemplate = Handlebars.compile(`
 <div class="completion_prompt_manager_popup_entry">
     <div class="completion_prompt_manager_error {{#unless isExtensionEnabled}}caution{{/unless}} marginBot10">
-        <span>API Status: <strong>{{statusText}}</strong></span>
+        <span>API 狀態： <strong>{{statusText}}</strong></span>
     </div>
 
     <div class="completion_prompt_manager_popup_entry_form_control flex-container flexFlowColumn justifyCenter" style="text-align: center;">
@@ -1431,7 +1431,7 @@ const popupTemplate = Handlebars.compile(`
     </div>
 
     <div class="completion_prompt_manager_popup_entry_form_control flex-container flexFlowColumn justifyCenter">
-        <h4 class="standoutHeader">⚙️ Auto-apply Settings:</h4>
+        <h4 class="standoutHeader">⚙️ 自動套用設定：</h4>
         <div class="marginTop10">
             {{#each autoApplyOptions}}
             <label class="radio_label">
@@ -1445,17 +1445,17 @@ const popupTemplate = Handlebars.compile(`
     {{#if hasActiveChat}}
     <div class="completion_prompt_manager_popup_entry_form_control">
         {{#if isGroupChat}}
-        <h4>Group Settings:</h4>
+        <h4>群組設定：</h4>
         <div class="completion_prompt_manager_popup_entry_form_control marginTop10">
             <pre class="margin0">{{groupInfo}}</pre>
         </div>
 
-        <h4>Current Chat Settings:</h4>
+        <h4>目前聊天設定：</h4>
         <div class="completion_prompt_manager_popup_entry_form_control marginTop10">
             <pre class="margin0">{{chatInfo}}</pre>
         </div>
 
-        <h4 class="standoutHeader">Group Members:</h4>
+        <h4 class="standoutHeader">群組成員：</h4>
         <div class="flex-container marginTop10">
             {{#each groupMembers}}
             <div class="flex1">
@@ -1466,15 +1466,15 @@ const popupTemplate = Handlebars.compile(`
         </div>
 
         <div class="marginTop10">
-            <small>💡 To set individual character settings, visit their character card</small>
+            <small>💡 若要個別設定角色，請前往其角色卡</small>
         </div>
         {{else}}
-        <h4>Current Character Settings:</h4>
+        <h4>目前角色設定：</h4>
         <div class="completion_prompt_manager_popup_entry_form_control marginTop10">
             <pre class="margin0">{{characterInfo}}</pre>
         </div>
 
-        <h4>Current Chat Settings:</h4>
+        <h4>目前聊天設定：</h4>
         <div class="completion_prompt_manager_popup_entry_form_control marginTop10">
             <pre class="margin0">{{chatInfo}}</pre>
         </div>
@@ -1507,25 +1507,25 @@ async function getPopupContent() {
     
     if (isGroupChat) {
         checkboxes = [
-            { id: 'stcl-enable-character', label: 'Remember per group', checked: extensionSettings.moduleSettings.enableGroupMemory, requiresApi: true },
-            { id: 'stcl-enable-chat', label: 'Remember per chat', checked: extensionSettings.moduleSettings.enableChatMemory, requiresApi: true },
-            { id: 'stcl-prefer-group-over-chat', label: 'Prefer group settings over chat', checked: extensionSettings.moduleSettings.preferGroupOverChat, requiresApi: true },
-            { id: 'stcl-prefer-individual-character', label: 'Prefer character settings over group or chat', checked: extensionSettings.moduleSettings.preferIndividualCharacterInGroup, requiresApi: true },
-            { id: 'stcl-show-notifications', label: 'Show notifications', checked: extensionSettings.moduleSettings.showNotifications, requiresApi: false }
+            { id: 'stcl-enable-character', label: '記住每個群組的設定', checked: extensionSettings.moduleSettings.enableGroupMemory, requiresApi: true },
+            { id: 'stcl-enable-chat', label: '記住每個聊天的設定', checked: extensionSettings.moduleSettings.enableChatMemory, requiresApi: true },
+            { id: 'stcl-prefer-group-over-chat', label: '群組設定優先於聊天', checked: extensionSettings.moduleSettings.preferGroupOverChat, requiresApi: true },
+            { id: 'stcl-prefer-individual-character', label: '角色設定優先於群組或聊天', checked: extensionSettings.moduleSettings.preferIndividualCharacterInGroup, requiresApi: true },
+            { id: 'stcl-show-notifications', label: '顯示通知', checked: extensionSettings.moduleSettings.showNotifications, requiresApi: false }
         ];
     } else {
         checkboxes = [
-            { id: 'stcl-enable-character', label: 'Remember per character', checked: extensionSettings.moduleSettings.enableCharacterMemory, requiresApi: true },
-            { id: 'stcl-enable-chat', label: 'Remember per chat', checked: extensionSettings.moduleSettings.enableChatMemory, requiresApi: true },
-            { id: 'stcl-prefer-character', label: 'Prefer character settings over chat', checked: extensionSettings.moduleSettings.preferCharacterOverChat, requiresApi: true },
-            { id: 'stcl-show-notifications', label: 'Show notifications', checked: extensionSettings.moduleSettings.showNotifications, requiresApi: false }
+            { id: 'stcl-enable-character', label: '記住每個角色的設定', checked: extensionSettings.moduleSettings.enableCharacterMemory, requiresApi: true },
+            { id: 'stcl-enable-chat', label: '記住每個聊天的設定', checked: extensionSettings.moduleSettings.enableChatMemory, requiresApi: true },
+            { id: 'stcl-prefer-character', label: '角色設定優先於聊天', checked: extensionSettings.moduleSettings.preferCharacterOverChat, requiresApi: true },
+            { id: 'stcl-show-notifications', label: '顯示通知', checked: extensionSettings.moduleSettings.showNotifications, requiresApi: false }
         ];
     }
 
     const autoApplyOptions = [
-        { value: AUTO_APPLY_MODES.NEVER, label: 'Never auto-apply', checked: extensionSettings.moduleSettings.autoApplyOnContextChange === AUTO_APPLY_MODES.NEVER },
-        { value: AUTO_APPLY_MODES.ASK, label: 'Ask before applying', checked: extensionSettings.moduleSettings.autoApplyOnContextChange === AUTO_APPLY_MODES.ASK },
-        { value: AUTO_APPLY_MODES.ALWAYS, label: 'Always auto-apply', checked: extensionSettings.moduleSettings.autoApplyOnContextChange === AUTO_APPLY_MODES.ALWAYS }
+        { value: AUTO_APPLY_MODES.NEVER, label: '從不自動套用', checked: extensionSettings.moduleSettings.autoApplyOnContextChange === AUTO_APPLY_MODES.NEVER },
+        { value: AUTO_APPLY_MODES.ASK, label: '套用前詢問', checked: extensionSettings.moduleSettings.autoApplyOnContextChange === AUTO_APPLY_MODES.ASK },
+        { value: AUTO_APPLY_MODES.ALWAYS, label: '永遠自動套用', checked: extensionSettings.moduleSettings.autoApplyOnContextChange === AUTO_APPLY_MODES.ALWAYS }
     ];
 
     // Use SillyTavern's getContext() to determine if there's an active chat
@@ -1561,7 +1561,7 @@ async function refreshPopupContent() {
 
     try {
         const content = await getPopupContent();
-        const header = '📌 Character Locks';
+        const header = '📌 角色鎖定';
         const newContent = `<h3>${header}</h3>${content}`;
 
         const tempContainer = document.createElement('div');
@@ -1605,7 +1605,7 @@ async function showPopup() {
     }
 
     const content = await getPopupContent();
-    const header = '📌 Character Locks';
+    const header = '📌 角色鎖定';
     const contentWithHeader = `<h3>${header}</h3>${content}`;
     const context = settingsManager.chatContext.getCurrent();
     const isGroupChat = context.isGroupChat;
@@ -1622,7 +1622,7 @@ async function showPopup() {
         if (!isGroupChat) {
         customButtons.push(
             {
-                text: '✔️ Set Character',
+                text: '✔️ 儲存角色設定',
                 classes: ['menu_button'],
                 action: async (event) => {
                     event.preventDefault();
@@ -1634,13 +1634,13 @@ async function showPopup() {
                     } catch (error) {
                         console.error('STCL: Error in Set Character action:', error);
                         if (typeof toastr !== 'undefined') {
-                            toastr.error('Failed to save character settings', MODULE_NAME);
+                            toastr.error('儲存角色設定失敗', MODULE_NAME);
                         }
                     }
                 }
             },
             {
-                text: '✔️ Set Both',
+                text: '✔️ 儲存兩者設定',
                 classes: ['menu_button'],
                 action: async (event) => {
                     event.preventDefault();
@@ -1652,7 +1652,7 @@ async function showPopup() {
                     } catch (error) {
                         console.error('STCL: Error in Set Both action:', error);
                         if (typeof toastr !== 'undefined') {
-                            toastr.error('Failed to save both settings', MODULE_NAME);
+                            toastr.error('儲存兩者設定失敗', MODULE_NAME);
                         }
                     }
                 }
@@ -1662,7 +1662,7 @@ async function showPopup() {
         // For group chats, only show group and all buttons (no individual character button)
         customButtons.push(
             {
-                text: '✔️ Set Group',
+                text: '✔️ 儲存群組設定',
                 classes: ['menu_button'],
                 action: async (event) => {
                     event.preventDefault();
@@ -1674,13 +1674,13 @@ async function showPopup() {
                     } catch (error) {
                         console.error('STCL: Error in Set Group action:', error);
                         if (typeof toastr !== 'undefined') {
-                            toastr.error('Failed to save group settings', MODULE_NAME);
+                            toastr.error('儲存群組設定失敗', MODULE_NAME);
                         }
                     }
                 }
             },
             {
-                text: '✔️ Set All',
+                text: '✔️ 儲存所有設定',
                 classes: ['menu_button'],
                 action: async (event) => {
                     event.preventDefault();
@@ -1692,7 +1692,7 @@ async function showPopup() {
                     } catch (error) {
                         console.error('STCL: Error in Set All action:', error);
                         if (typeof toastr !== 'undefined') {
-                            toastr.error('Failed to save all settings', MODULE_NAME);
+                            toastr.error('儲存所有設定失敗', MODULE_NAME);
                         }
                     }
                 }
@@ -1703,7 +1703,7 @@ async function showPopup() {
     // Chat button is common to both
     customButtons.push(
         {
-            text: '✔️ Set Chat',
+            text: '✔️ 儲存聊天設定',
             classes: ['menu_button'],
             action: async () => {
                 try {
@@ -1713,13 +1713,13 @@ async function showPopup() {
                 } catch (error) {
                     console.error('STCL: Error in Set Chat action:', error);
                     if (typeof toastr !== 'undefined') {
-                        toastr.error('Failed to save chat settings', MODULE_NAME);
+                        toastr.error('儲存聊天設定失敗', MODULE_NAME);
                     }
                 }
             }
         },
         {
-            text: isGroupChat ? '❌ Clear Group' : '❌ Clear Character',
+            text: isGroupChat ? '❌ 清除群組設定' : '❌ 清除角色設定',
             classes: ['menu_button'],
             action: async () => {
                 try {
@@ -1729,7 +1729,7 @@ async function showPopup() {
                             // Also clean up old STMTL group settings
                             await storageAdapter.deleteOldGroupSettings(context.groupId);
                             if (typeof toastr !== 'undefined') {
-                                toastr.info('Group settings cleared', MODULE_NAME);
+                                toastr.info('群組設定已清除', MODULE_NAME);
                             }
                         }
                     } else {
@@ -1743,7 +1743,7 @@ async function showPopup() {
                                 // Also clean up old STMTL character settings
                                 storageAdapter.deleteOldCharacterSettings(context.characterName);
                                 if (typeof toastr !== 'undefined') {
-                                    toastr.info('Character settings cleared', MODULE_NAME);
+                                    toastr.info('角色設定已清除', MODULE_NAME);
                                 }
                             }
                         }
@@ -1755,7 +1755,7 @@ async function showPopup() {
             }
         },
         {
-            text: '❌ Clear Chat',
+            text: '❌ 清除聊天設定',
             classes: ['menu_button'],
             action: async () => {
                 try {
@@ -1765,7 +1765,7 @@ async function showPopup() {
                             // Also clean up old STMTL group chat settings
                             await storageAdapter.deleteOldGroupChatSettings(context.groupId);
                             if (typeof toastr !== 'undefined') {
-                                toastr.info('Group chat settings cleared', MODULE_NAME);
+                                toastr.info('群組聊天設定已清除', MODULE_NAME);
                             }
                         }
                     } else {
@@ -1774,7 +1774,7 @@ async function showPopup() {
                             // Also clean up old STMTL chat settings
                             storageAdapter.deleteOldChatSettings();
                             if (typeof toastr !== 'undefined') {
-                                toastr.info('Chat settings cleared', MODULE_NAME);
+                                toastr.info('聊天設定已清除', MODULE_NAME);
                             }
                         }
                     }
@@ -1785,7 +1785,7 @@ async function showPopup() {
             }
         },
         {
-            text: '❌ Clear All',
+            text: '❌ 清除所有設定',
             classes: ['menu_button'],
             action: async () => {
                 try {
@@ -1794,13 +1794,13 @@ async function showPopup() {
                 } catch (error) {
                     console.error('STCL: Error in Clear All action:', error);
                     if (typeof toastr !== 'undefined') {
-                        toastr.error('Failed to clear all settings', MODULE_NAME);
+                        toastr.error('清除所有設定失敗', MODULE_NAME);
                     }
                 }
             }
         },
         {
-            text: '🔄 Apply Settings',
+            text: '🔄 套用設定',
             classes: ['menu_button'],
             action: async (event) => {
                 event.preventDefault();
@@ -1815,7 +1815,7 @@ async function showPopup() {
     const popupOptions = {
         allowVerticalScrolling: true,
         customButtons: customButtons,
-        cancelButton: 'Close',
+        cancelButton: '關閉',
         okButton: false,
         onClose: handlePopupClose
     };
@@ -2018,16 +2018,16 @@ function formatOldSettings(settings, label) {
 
     const formatted = [];
     formatted.push(`**${label}:**`);
-    formatted.push(`- Model: ${settings.model || 'Unknown'}`);
-    formatted.push(`- Temperature: ${settings.temperature ?? 'Unknown'}`);
-    formatted.push(`- Completion Source: ${settings.completionSource || 'Unknown'}`);
+    formatted.push(`- Model: ${settings.model || '未知'}`);
+    formatted.push(`- Temperature: ${settings.temperature ?? '未知'}`);
+    formatted.push(`- 完成來源： ${settings.completionSource || '未知'}`);
 
     if (settings.savedAt) {
         try {
             const saved = moment(settings.savedAt).format('MMM D, YYYY [at] h:mm A');
-            formatted.push(`- Saved: ${saved}`);
+            formatted.push(`- 儲存於: ${saved}`);
         } catch {
-            formatted.push(`- Saved: ${settings.savedAt}`);
+            formatted.push(`- 儲存於: ${settings.savedAt}`);
         }
     }
 
@@ -2039,16 +2039,16 @@ function formatOldSettingsHTML(settings, label) {
 
     let html = `<div class="info-block">`;
     html += `<strong>${label}:</strong><br>`;
-    html += `<small>Model: ${settings.model || 'Unknown'}<br>`;
-    html += `Temperature: ${settings.temperature ?? 'Unknown'}<br>`;
-    html += `Completion Source: ${settings.completionSource || 'Unknown'}<br>`;
+    html += `<small>Model: ${settings.model || '未知'}<br>`;
+    html += `Temperature: ${settings.temperature ?? '未知'}<br>`;
+    html += `完成來源： ${settings.completionSource || '未知'}<br>`;
 
     if (settings.savedAt) {
         try {
             const saved = moment(settings.savedAt).format('MMM D, YYYY [at] h:mm A');
-            html += `Saved: ${saved}<br>`;
+            html += `儲存於: ${saved}<br>`;
         } catch {
-            html += `Saved: ${settings.savedAt}<br>`;
+            html += `儲存於: ${settings.savedAt}<br>`;
         }
     }
 
@@ -2058,14 +2058,14 @@ function formatOldSettingsHTML(settings, label) {
 
 async function showMigrationPopup(context, oldSettings) {
     try {
-        let message = `<h3>⚠️ Old Model/Temperature Lock Settings Found</h3>`;
+        let message = `<h3>⚠️ 發現舊版模型/溫度鎖定設定</h3>`;
 
-        message += `<p>Previous settings for <strong>Model/Temperature Locks (STMTL)</strong> were found but are not applicable to the new <strong>Character Locks (STCL)</strong> system.</p>`;
+        message += `<p>發現舊版的 <strong>模型/溫度鎖定 (STMTL)</strong> 設定，但它們不適用於新的 <strong>角色鎖定 (STCL)</strong> 系統。</p>`;
 
-        message += `<p>The new system uses <strong>Connection Profiles</strong> and <strong>Presets</strong> instead of individual model and temperature settings.</p>`;
+        message += `<p>新系統使用 <strong>連線設定</strong> 與 <strong>預設設定</strong>，而非個別的模型與溫度設定。</p>`;
 
         if (context.isGroupChat) {
-            message += `<h4>Found in this group chat:</h4>`;
+            message += `<h4>在此群組聊天中發現：</h4>`;
 
             if (oldSettings.group) {
                 message += formatOldSettingsHTML(oldSettings.group, 'Group Settings');
@@ -2079,7 +2079,7 @@ async function showMigrationPopup(context, oldSettings) {
                 });
             }
         } else {
-            message += `<h4>Found in this chat:</h4>`;
+            message += `<h4>在此聊天中發現：</h4>`;
 
             if (oldSettings.character) {
                 message += formatOldSettingsHTML(oldSettings.character, `Character: ${context.characterName}`);
@@ -2089,13 +2089,13 @@ async function showMigrationPopup(context, oldSettings) {
             }
         }
 
-        message += `<h4>To continue:</h4>`;
-        message += `<p>Configure your new Connection Profiles and Presets in SillyTavern, then use Character Locks to save your new settings. Old settings will be automatically removed when you save new ones.</p>`;
-        message += `<p><small>This message will only appear once per chat/character.</small></p>`;
+        message += `<h4>為了繼續：</h4>`;
+        message += `<p>請在 SillyTavern 中設定新的連線設定與預設設定，然後使用角色鎖定來儲存您的新設定。當您儲存新設定時，舊設定將自動被移除。</p>`;
+        message += `<p><small>此訊息在每個聊天/角色中只會顯示一次。</small></p>`;
 
         const result = await callGenericPopup(message, POPUP_TYPE.CONFIRM, '', {
-            okButton: 'Configure Now',
-            cancelButton: 'Understood'
+            okButton: '立即設定',
+            cancelButton: '了解'
         });
 
         if (result === POPUP_RESULT.AFFIRMATIVE) {
@@ -2114,7 +2114,7 @@ function createUI() {
         <div id="stcl-menu-item-container" class="extension_container interactable" tabindex="0">
             <div id="stcl-menu-item" class="list-group-item flex-container flexGap5 interactable" tabindex="0">
                 <div class="fa-fw fa-solid fa-thumbtack extensionsMenuExtensionButton"></div>
-                <span>Character Locks</span>
+                <span>角色鎖定</span>
             </div>
         </div>
     `);
@@ -2381,8 +2381,8 @@ async function init() {
     if (extension_settings.disabledExtensions.includes('connection-manager')) {
         console.error('STCL: Connection Manager extension is required but disabled');
         await Popup.show.alert(
-            'STCL Extension Dependency Error',
-            'STCL requires the Connection Manager extension to be enabled. Please enable the Connection Manager extension and reload the page.'
+            'STCL 擴充功能依賴錯誤',
+            'STCL 需要啟用 Connection Manager 擴充功能。請啟用該擴充功能並重新載入網頁。'
         );
         return;
     }
