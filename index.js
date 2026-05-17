@@ -1812,6 +1812,38 @@ async function showPopup() {
     );
     }
 
+    customButtons.push({
+        text: '❓ 使用說明',
+        classes: ['menu_button'],
+        action: async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const helpHtml = `
+            <div style="text-align: left; padding: 10px; max-width: 600px;">
+                <h3 style="color: #4CAF50; margin-bottom: 10px;">SillyTavern-CharacterLocks 操作指南</h3>
+                <p>此擴充功能讓您可以<strong>鎖定</strong>特定的連線與預設設定，確保在切換角色或群組時，能自動套用您為其指定的環境，不怕被覆蓋。</p>
+                <hr>
+                <h4 style="color: #2196F3; margin-top: 15px;">📌 設定優先權說明</h4>
+                <ul>
+                    <li><strong>單人聊天：</strong> 角色設定 > 聊天設定</li>
+                    <li><strong>群組聊天：</strong> 群組設定 > 聊天設定</li>
+                </ul>
+                <h4 style="color: #FF9800; margin-top: 15px;">⚙️ 按鈕功能</h4>
+                <ul>
+                    <li><strong>✔️ 儲存設定：</strong> 將打勾的項目綁定到目前角色、群組或聊天。</li>
+                    <li><strong>❌ 清除設定：</strong> 解除對應的綁定鎖定狀態。</li>
+                    <li><strong>🔄 套用設定：</strong> 立即將綁定的設定套用到酒館環境。</li>
+                </ul>
+                <h4 style="color: #9C27B0; margin-top: 15px;">💡 自動套用模式</h4>
+                <p>當您切換角色或聊天時，您可以決定是否要自動套用設定：<br>
+                可以選擇 <strong>從不自動套用</strong>、<strong>套用前詢問</strong>，或是 <strong>永遠自動套用</strong>。</p>
+            </div>
+            `;
+            await callGenericPopup(helpHtml, POPUP_TYPE.TEXT);
+        }
+    });
+
     const popupOptions = {
         allowVerticalScrolling: true,
         customButtons: customButtons,
